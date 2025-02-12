@@ -1,12 +1,17 @@
 package com.weatherapp.myweatherapp.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CityInfo {
 
   @JsonProperty("address")
   String address;
+
+  public String getAddress() {
+      return address;
+  }
 
   @JsonProperty("description")
   String description;
@@ -14,19 +19,30 @@ public class CityInfo {
   @JsonProperty("currentConditions")
   CurrentConditions currentConditions;
 
+  public CurrentConditions getCurrentConditions() {
+      return currentConditions;
+  }
+
   @JsonProperty("days")
   List<Days> days;
 
-  static class CurrentConditions {
+  public static class CurrentConditions {
     @JsonProperty("temp")
     String currentTemperature;
 
     @JsonProperty("sunrise")
     String sunrise;
 
+    public String getSunrise() {
+        return sunrise;
+    }
+
     @JsonProperty("sunset")
     String sunset;
 
+    public String getSunset() {
+        return sunset;
+    }
     @JsonProperty("feelslike")
     String feelslike;
 
