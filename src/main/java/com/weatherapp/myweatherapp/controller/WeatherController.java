@@ -38,7 +38,7 @@ public class WeatherController {
 
     } catch (Exception e) {
 
-      return ResponseEntity.status(500).body("Error fetching weather data for city with name " + city1 + ", Error Status Code " + e.getMessage());
+      return ResponseEntity.status(400).body("Error fetching weather data for city with name " + city1 + ", Error Status Code " + e.getMessage());
     }
 
     CityInfo city2Info;
@@ -61,7 +61,7 @@ public class WeatherController {
     double daylightHrs1 = getDaylightHours(sunriseCity1, sunsetCity1); // Using the helper method to calculate daylight hours for each city
     double daylightHrs2 = getDaylightHours(sunriseCity2, sunsetCity2);
 
-    String res = "Both cities have the same amount of daylight hours.";
+    String res = "Both " + city1Info.getAddress() + " and " + city2Info.getAddress() + " have the same amount of daylight hours.";
     
     // Compares daylight hours of both cities
     if (daylightHrs1 > daylightHrs2){
@@ -85,9 +85,49 @@ public class WeatherController {
     return daylightHrs;
   }
 
-
-
-}
-
+  @GetMapping("/rainCheck/{city1}/{city2}")
+  public ResponseEntity<String> rainCheck(@PathVariable("city1") String city1, @PathVariable("city2") String city2) {
 
   // TODO: given two city names, check which city its currently raining in
+
+    CityInfo city1Info;
+
+    // Fetches weather data for each city and handle exceptions (e.g., city does not exist)
+    try {
+      city1Info = weatherService.forecastByCity(city1);
+
+    } catch (Exception e) {
+      return ResponseEntity.status(400).body("Error fetching weather data for city with name " + city1 + ", Error Status Code " + e.getMessage());
+    }
+
+    CityInfo city2Info;
+    try {
+      city2Info = weatherService.forecastByCity(city2);
+
+    } catch (Exception e) {
+      return ResponseEntity.status(400).body("Error fetching weather data for city with name " + city2 + ", Error Status Code " + e.getMessage());
+    }
+
+    String conditionsCity1 = city1Info.getCurrentConditions().getConditions(); // Gets the conditions from currentConditions
+    String conditionsCity2 = city2Info.getCurrentConditions().getConditions();
+
+    // Converts string to lowercase to ensure case-insensitive comparison then checks it it contains the string "rain" which indicates it is raining
+    Boolean isCity1Raining = conditionsCity1.toLowerCase().contains("rain");
+    Boolean isCity2Raining = conditionsCity2.toLowerCase().contains("rain");
+
+    String res = "It is not raining in neither city."; // For the case where neither cities are raining
+
+    if (isCity1Raining && isCity2Raining){
+      res = city1Info.getAddress() + ", " + city2Info.getAddress();
+    }
+    else if (isCity1Raining){
+      res = city1Info.getAddress();
+    }
+    else if (isCity2Raining){
+      res = city2Info.getAddress();
+    }
+
+    return ResponseEntity.ok(res);
+  }
+}
+
